@@ -1,0 +1,26 @@
+#! /bin/bash
+
+ftmain 2> ./wavelog.dat
+
+echo "How many samples would you like to show in the plot?"
+read plotwidth
+(( plotwidth = plotwidth - 1 ))
+echo
+
+echo "# Gnuplot script file for plotting data in file \"wavelog.dat\"
+# This file is called \"wavelog.p\"
+set autoscale                          # scale axes automatically
+unset log                              # remove any log-scaling
+unset label                            # remove any previous labels
+set xtic auto                          # set xtics automatically
+set ytic auto                          # set ytics automatically
+set title \"Wave Output\"
+set xlabel \"Time (samples)\"
+set ylabel \"Amplitude\"
+set xr [0:${plotwidth}]
+set yr [-1.0:1.0]
+plot \"wavelog.dat\" using 1:2 title 'Wave' with lines" > ./wavelog.p
+
+echo "Start gnuplot and type in this command:
+gnuplot> load 'wavelog.p'"
+
