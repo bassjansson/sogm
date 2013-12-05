@@ -5,7 +5,7 @@ using namespace std;
 
 // Samplerate and Signal Buffer
 unsigned int sr = 48000;
-float signalbuffer[1024];
+float signalbuffer[8192];
 
 // Wave Calculators
 float phasor(int sample, float freq, float phase) {

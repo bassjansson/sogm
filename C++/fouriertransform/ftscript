@@ -18,8 +18,10 @@ set title \"Wave Output\"
 set xlabel \"Time (samples)\"
 set ylabel \"Amplitude\"
 set xr [0:${plotwidth}]
-set yr [-1.0:1.0]
-plot \"wavelog.dat\" using 1:2 title 'Wave' with lines" > ./wavelog.p
+set yr [-1.1:1.1]
+plot \"wavelog.dat\" using 1:2 title 'Amplitude' with lines, \\
+     \"wavelog.dat\" using 3:4 title 'Magnitude' with lines
+#plot \"wavelog.dat\" using 3:5 title 'Phase' with lines" > ./wavelog.p
 
 echo "Start gnuplot and type in this command:
 gnuplot> load 'wavelog.p'"

@@ -3,28 +3,37 @@
 
 using namespace std;
 
-int * myFunction(int input[]) {
-	return input;
+// int   v   =  int
+// int  *p   =  int*
+// int  *p   =  int[]
+// int   a[] =  int[]
+// int   a[] = {int   , int  }
+// int  *p[] = {int*  , int* }
+// int  *p[] = {int[] , int[]}
+// int **p   =  int*[]
+// int **p   =  int**
+
+int * mypointer[] = {new int[6], new int[6]};
+
+int ** myFunction() {
+	for(int i = 0; i < 6; i++) {
+		mypointer[0][i] = i;
+		mypointer[1][i] = -i;
+	}
+	return mypointer;
 }
 
 int main() {
-
-	// the array where we are going to point to
-	int myarray[] = {5, 6, 7, 8, 9};
-
-	// displaying the array
-	cout << "myarray =";
-	for(int i = 0; i < 5; i++) cout << " " << myarray[i];
-	cout << endl;
 	
-	// the pointer, initialized using the function
-	int * mypointer;
-	mypointer = myFunction(myarray);
-
+	int ** mainpointer = myFunction();
+	
 	// displaying the pointer
-	cout << "mypointer =";
-	for(int i = 0; i < 5; i++) cout << " " << mypointer[i];
+	cout << "mainpointer[0] =";
+	for(int i = 0; i < 6; i++) cout << " " << mainpointer[0][i];
 	cout << endl;
 
+	cout << "mainpointer[1] =";
+	for(int i = 0; i < 6; i++) cout << " " << mainpointer[1][i];
+	cout << endl;
 }
 

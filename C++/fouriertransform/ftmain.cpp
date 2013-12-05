@@ -5,14 +5,6 @@
 
 using namespace std;
 
-//          fun              -- fun
-//          fun(    )        -- is a function
-//          fun(char)        -- 	taking a char parameter
-//        * fun(char)        -- 	returning a pointer
-//       (* fun(char))(   )  -- 	to a function
-//       (* fun(char))(int)  -- 		taking a int parameter
-// float (* fun(char))(int)  -- 		returning float
-
 // Wave Switch
 float (* waveSwitch(char wave[]))(int, float, float) {
 	switch(wave[2]) {
@@ -34,6 +26,7 @@ int main() {
 	float freq;
 	float phase;
 
+	// Get input from the command line
 	cout << "Samplerate = 48000 Hz\n";
 	cout << "Waveform: ";
 	cin >> waveform;
@@ -45,9 +38,30 @@ int main() {
 	cin >> phase;
 	cout << endl;
 
-	float * sig = genSignal(waveSwitch(waveform), window, freq, phase);
-	for(int i = 0; i < window; i++) clog << i << "	" << sig[i] << endl;
-		
+	// Generate the signal and the Slow Fourier Transform of the signal
+	float *  sig = genSignal(waveSwitch(waveform), window, freq, phase);
+	float ** sft = carToPol(fourierTransform(sig, window), window/2);
+
+	// Print sig and sft on the command line
+	for(int i = 0; i < window; i++) {
+			 clog << i					<< "	";
+			 clog << sig[i]				<< "	";
+		if(i < window/2) {
+			 clog << i*2				<< "	";
+			 clog << sft[0][i]			<< "	";
+			 clog << sft[1][i]/(2*M_PI)	<< endl;
+		}
+		else clog << endl;
+	}
+
 	return 0;
 }
+
+//          fun              -- fun
+//          fun(    )        -- is a function
+//          fun(char)        -- 	taking a char parameter
+//        * fun(char)        -- 	returning a pointer
+//       (* fun(char))(   )  -- 	to a function
+//       (* fun(char))(int)  -- 		taking a int parameter
+// float (* fun(char))(int)  -- 		returning float
 
