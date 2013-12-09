@@ -29,7 +29,7 @@ float rectangle(int sample, float freq, float phase) {
 }
 
 float sawwave(int sample, float freq, float phase) {
-	return phasor(sample, freq, phase) * 2 - 1;
+	return abs(phasor(sample, freq, phase) - 1) * 2 - 1;
 }
 
 // Signal Generator

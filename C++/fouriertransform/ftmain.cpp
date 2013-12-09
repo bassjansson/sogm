@@ -41,11 +41,13 @@ int main() {
 	// Generate the signal and the Slow Fourier Transform of the signal
 	float *  sig = genSignal(waveSwitch(waveform), window, freq, phase);
 	float ** sft = carToPol(fourierTransform(sig, window), window/2);
+	float * tsig = inverseFourierTransform(sft, window/2);
 
 	// Print sig and sft on the command line
 	for(int i = 0; i < window; i++) {
 			 clog << i					<< "	";
 			 clog << sig[i]				<< "	";
+			 clog << tsig[i]			<< "	";
 		if(i < window/2) {
 			 clog << i*2				<< "	";
 			 clog << sft[0][i]			<< "	";
