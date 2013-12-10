@@ -1,34 +1,14 @@
-#include <iostream>
+// guitarfx.cpp
 
-#define BUFFERSIZE 10
+#include <iostream>
+#include "amplifier.h"
 
 using namespace std;
 
-// Class
-class Amplifier {
-
-public:
-	Amplifier();
-	void showLevel();
-
-private:
-	long level;
-
-};
-
-// Constructor
-Amplifier::Amplifier() {
-	level = 5;
-}
-
-// Function
-void Amplifier::showLevel() {
-	cout << "Amplifier level: " << level << endl;
-}
-
-// Main
 int main() {
 	Amplifier amp;
- 	amp.showLevel();
+
+	amp.level = 0.5;
+	amp.process();
 }
 

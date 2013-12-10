@@ -47,7 +47,7 @@ int main() {
 	float ** sft = fourierTransform(sig, window);
 	float * tsig = inverseFourierTransform(sft, window);
 
-	// Print sig and sft on the command line
+	// Print sig, sft and tsig on the command line
 	for(int i = 0; i < window; i++) {
 			 clog << i						<< "	";
 			 clog << sig[i]				+ 2 << "	";
