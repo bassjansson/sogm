@@ -5,7 +5,7 @@ using namespace std;
 
 // Samplerate and Signal Buffer
 unsigned int sr = 48000;
-float signalbuffer[8192];
+float signalbuffer[16384];
 
 // Wave Calculators
 float phasor(int sample, float freq, float phase) {
@@ -30,6 +30,11 @@ float rectangle(int sample, float freq, float phase) {
 
 float sawwave(int sample, float freq, float phase) {
 	return abs(phasor(sample, freq, phase) - 1) * 2 - 1;
+}
+
+float noise(int sample, float freq, float phase) {
+	float amp = random();
+	return amp/RAND_MAX * 2 - 1;
 }
 
 // Signal Generator

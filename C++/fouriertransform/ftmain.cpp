@@ -11,7 +11,11 @@ float (* waveSwitch(char wave[]))(int, float, float) {
 		case 'a': return &phasor; break;
 		case 'n': return &sinwave; break;
 		case 's': return &coswave; break;
-		case 'i': return &triangle; break;
+		case 'i': switch(wave[0]) {
+					case 't': return &triangle; break;
+					case 'n': return &noise; break;
+					default : return &noise; break;
+				  } break;
 		case 'c': return &rectangle; break;
 		case 'w': return &sawwave; break;
 		default : return &sinwave; break;
@@ -40,18 +44,18 @@ int main() {
 
 	// Generate the signal and the Slow Fourier Transform of the signal
 	float *  sig = genSignal(waveSwitch(waveform), window, freq, phase);
-	float ** sft = carToPol(fourierTransform(sig, window), window/2);
-	float * tsig = inverseFourierTransform(sft, window/2);
+	float ** sft = fourierTransform(sig, window);
+	float * tsig = inverseFourierTransform(sft, window);
 
 	// Print sig and sft on the command line
 	for(int i = 0; i < window; i++) {
-			 clog << i					<< "	";
-			 clog << sig[i]				<< "	";
-			 clog << tsig[i]			<< "	";
+			 clog << i						<< "	";
+			 clog << sig[i]				+ 2 << "	";
+			 clog << tsig[i]				<< "	";
 		if(i < window/2) {
-			 clog << i*2				<< "	";
-			 clog << sft[0][i]			<< "	";
-			 clog << sft[1][i]/(2*M_PI)	<< endl;
+			 clog << i*2					<< "	";
+			 clog << sft[0][i]			- 2 << "	";
+			 clog << sft[1][i]/(2*M_PI) - 3	<< endl;
 		}
 		else clog << endl;
 	}
