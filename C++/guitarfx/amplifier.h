@@ -1,17 +1,15 @@
 // amplifier.h
 
-#define BUFFER_SIZE 1024
+#include "audiofx.h"
 
-class Amplifier {
+class Amplifier: public AudioFX {
 	public:
+		// From Amplifier itself
 		Amplifier();
-		void readSamples();
+		float gain;
+		
+		// From AudioFX
+		int paramSwitch(char param, float value);
 		void processSamples();
-		void writeSamples();
-		void process();
-		float level;
-
-	private:
-		float * sig;
 };
 

@@ -3,7 +3,7 @@
 CC = c++
 CFLAGS = -Wall
 
-OBJECTS = guitarfx.o amplifier.o
+OBJECTS = guitarfx.o audiofx.o amplifier.o
 
 all: guitarfx
 
@@ -16,4 +16,7 @@ guitarfx: $(OBJECTS)
 clean:
 	rm *.o
 	rm `find . -perm +111 -type f`
+
+touch:
+	touch ./*.cpp
 

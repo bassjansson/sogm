@@ -1,36 +1,21 @@
 // amplifier.cpp
 
-#include <iostream>
 #include "amplifier.h"
 
-using namespace std;
-
 Amplifier::Amplifier() {
-	sig = new float[BUFFER_SIZE];
-	level = 1;
+	gain = 1;
 }
 
-void Amplifier::readSamples() {
-	for(int i = 0; i < BUFFER_SIZE; i++) {
-		cin >> sig[i];
+int Amplifier::paramSwitch(char param, float value) {
+	switch(param) {
+		default : return 0;
+		case 'g': gain = value; return 2;
 	}
 }
 
 void Amplifier::processSamples() {
 	for(int i = 0; i < BUFFER_SIZE; i++) {
-		sig[i] *= level;
+		buffer[i] *= gain;
 	}
-}
-
-void Amplifier::writeSamples() {
-	for(int i = 0; i < BUFFER_SIZE; i++) {
-		cout << sig[i] << endl;
-	}
-}
-
-void Amplifier::process() {
-	readSamples();
-	processSamples();
-	writeSamples();
 }
 
