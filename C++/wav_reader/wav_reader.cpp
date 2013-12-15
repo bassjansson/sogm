@@ -6,51 +6,54 @@
 
 using namespace std;
 
-double SAMPLERATE = 48000;
-int HEADERSIZE = 44;
-int BUFFERSIZE = 16;
-int BYTEDEPTH = 2;
-double ABSDEPTH = pow(2, BYTEDEPTH * 8 - 1);
+#define BYTEDEPTH 2
+#define HEADERSIZE 44
+#define SAMPLERATE 48000
+#define ABSDEPTH 32767
 
-char * header = new char[HEADERSIZE];
+int DELAYSIZE = 0;
+int BLOCKSIZE = 1024;
+int BUFFERSIZE = DELAYSIZE + BLOCKSIZE;
+
+double * block = new double[BLOCKSIZE];
 double * buffer = new double[BUFFERSIZE];
 
 double depth = 1;
-double freq = 300;
+double freq = 10;
 double phase = 0;
 
-void readSamples(ifstream * file, int sample) {
-	char * charbuffer = new char[BYTEDEPTH * BUFFERSIZE];
+void readSample(ifstream * file, int sampleblock) {
+	short * shortbuffer = new short[BLOCKSIZE];
 
-	file->seekg(sample);
-	file->read(charbuffer, BYTEDEPTH * BUFFERSIZE);
+	file->seekg(sampleblock * BLOCKSIZE * BYTEDEPTH + HEADERSIZE);
+	file->read((char*)shortbuffer, BLOCKSIZE * BYTEDEPTH);
 
-	for(int i = 0; i < BUFFERSIZE; i++) {
-		buffer[i] = 0;
-		for(int r = 0; r < BYTEDEPTH; r++)
-			buffer[i] += ((int)charbuffer[r + BYTEDEPTH * i] << r * 8);
-		buffer[i] /= ABSDEPTH;
+	for(int i = 0; i < DELAYSIZE; i++) {
+		buffer[i] = buffer[i + BLOCKSIZE];
+	}
+
+	for(int i = 0; i < BLOCKSIZE; i++) {
+		buffer[i + DELAYSIZE] = (double)shortbuffer[i] / ABSDEPTH;
 	}
 }
 
-void processSamples() {
+void processSample(int sampleblock) {
 	// tremelo 8 beats per second
-	for(int i = 0; i < BUFFERSIZE; i++) {
-	//	buffer[i] *= sin(phase) * depth/2 + 1 - depth/2;
+	for(int i = 0; i < BLOCKSIZE; i++) {
+		block[i] = buffer[i + DELAYSIZE] * (sin(phase) * depth/2 + 1 - depth/2);
 		phase = fmod(phase + 2*M_PI * freq / SAMPLERATE, 2*M_PI);
 	}
 }
 
-void writeSamples(ofstream * file, int sample) {
-	char * charbuffer = new char[BYTEDEPTH * BUFFERSIZE];
-
-	for(int i = 0; i < BUFFERSIZE; i++) {
-		buffer[i] = round(buffer[i] * ABSDEPTH);
-		for(int r = 0; r < BYTEDEPTH; r++)
-			charbuffer[r + BYTEDEPTH * i] = (int)(((int)buffer[i] >> r * 8) & 0xFF);
+void writeSample(ofstream * file, int sampleblock) {
+	short * shortbuffer = new short[BLOCKSIZE]; 
+	
+	for(int i = 0; i < BLOCKSIZE; i++) {
+		shortbuffer[i] = round(block[i] * ABSDEPTH);;
 	}
-	file->seekp(sample);
-	file->write(charbuffer, BYTEDEPTH * BUFFERSIZE);
+
+	file->seekp(sampleblock * BLOCKSIZE * BYTEDEPTH + HEADERSIZE);
+	file->write((char*)shortbuffer, BLOCKSIZE * BYTEDEPTH);
 }
 
 int main (int argc, char* argv[]) {
@@ -62,7 +65,6 @@ int main (int argc, char* argv[]) {
 	}
 	else {
 		clog << "No argument given for inputfile" << endl;
-		delete[] header;
 		delete[] buffer;
 		return 0;
 	}
@@ -70,35 +72,30 @@ int main (int argc, char* argv[]) {
 	if(inputfile.is_open()) {
 		// Get size of inputfile
     	ifstream::pos_type filesize = inputfile.tellg();
+		filesize = ((int)filesize - HEADERSIZE) / BYTEDEPTH / BLOCKSIZE;
 		// Create outputfile
 		ofstream outputfile("./result.wav", ios::out|ios::binary|ios::beg);
 
 		inputfile.seekg(0);
+		char * header = new char[HEADERSIZE];
 		inputfile.read(header, HEADERSIZE);
 		outputfile.write(header, HEADERSIZE);
+		delete[] header;
 
-		for(int i = HEADERSIZE; i < filesize; i += BYTEDEPTH*BUFFERSIZE) {
+		for(int s = 0; s < filesize; s++) {
 			// Read Samples
-			readSamples(&inputfile, i);
+			readSample(&inputfile, s);
 			// Process Samples
-			processSamples();
+			processSample(s);
 			// Write Samples
-			writeSamples(&outputfile, i);
+			writeSample(&outputfile, s);
 		}
 
 		inputfile.close();
 		outputfile.close();
-
-		cout << ABSDEPTH - 10001 << endl;
-		double hai = (ABSDEPTH - 10001) / ABSDEPTH;
-		cout << hai << endl;
-		hai = round(hai * ABSDEPTH);
-		cout << hai << endl;
-		cout << filesize << endl;
 	}
 	else clog << "Failed to open " << argv[1] << endl;
 
-	delete[] header;
 	delete[] buffer;
 	return 0;
 }
