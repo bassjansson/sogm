@@ -14,7 +14,7 @@ int Amplifier::paramSwitch(char param, float value) {
 }
 
 void Amplifier::processSamples() {
-	for(int i = 0; i < BUFFER_SIZE; i++) {
+	for(int i = 0; i < BUFFERSIZE; i++) {
 		buffer[i] *= gain;
 	}
 }

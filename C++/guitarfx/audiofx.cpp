@@ -7,17 +7,17 @@ using namespace std;
 
 // Members which can't be modified
 AudioFX::AudioFX() {
-	buffer = new float[BUFFER_SIZE];
+	buffer = new float[BUFFERSIZE];
 }
 
 void AudioFX::readSamples() {
-	for(int i = 0; i < BUFFER_SIZE; i++) {
+	for(int i = 0; i < BUFFERSIZE; i++) {
 		cin >> buffer[i];
 	}
 }
 
 void AudioFX::writeSamples() {
-	for(int i = 0; i < BUFFER_SIZE; i++) {
+	for(int i = 0; i < BUFFERSIZE; i++) {
 		cout << buffer[i] << endl;
 	}
 }

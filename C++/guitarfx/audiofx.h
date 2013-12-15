@@ -1,6 +1,7 @@
 // audiofx.h
 
-#define BUFFER_SIZE 1024
+#define BUFFERSIZE 1024
+#define SAMPLERATE 48000
 
 class AudioFX {
 	public:		
