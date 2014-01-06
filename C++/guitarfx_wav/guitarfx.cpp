@@ -1,9 +1,9 @@
 // guitarfx.cpp
 
 #include <iostream>
-#include "effects/audiofx.h"
-#include "effects/amplifier.h"
-#include "effects/tremelo.h"
+#include "audiofx.h"
+#include "amplifier.h"
+#include "tremelo.h"
 
 
 void manual() {
