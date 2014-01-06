@@ -64,7 +64,7 @@ int main (int argc, char* argv[]) {
 		inputfile.open(argv[1], ios::in|ios::binary|ios::ate);
 	}
 	else {
-		clog << "No argument given for inputfile" << endl;
+		clog << "No argument given for inputfile, program stopped" << endl;
 		delete[] buffer;
 		return 0;
 	}
@@ -73,12 +73,23 @@ int main (int argc, char* argv[]) {
 		// Get size of inputfile
     	ifstream::pos_type filesize = inputfile.tellg();
 		filesize = ((int)filesize - HEADERSIZE) / BYTEDEPTH / BLOCKSIZE;
-		// Create outputfile
-		ofstream outputfile("./result.wav", ios::out|ios::binary|ios::beg);
 
+		// Go to the start of file and read header
 		inputfile.seekg(0);
 		char * header = new char[HEADERSIZE];
 		inputfile.read(header, HEADERSIZE);
+
+		// Check if input channels are greater than one and stop if true
+		/*if((int)header[22] > 1) {
+			cout << "Number of channels is more than one, program stopped" << endl;
+			inputfile.close();
+			delete[] header;
+			delete[] buffer;
+			return 0;
+		}*/
+
+		// Create outputfile and write header
+		ofstream outputfile("./result.wav", ios::out|ios::binary|ios::beg);
 		outputfile.write(header, HEADERSIZE);
 		delete[] header;
 
@@ -94,7 +105,7 @@ int main (int argc, char* argv[]) {
 		inputfile.close();
 		outputfile.close();
 	}
-	else clog << "Failed to open " << argv[1] << endl;
+	else clog << "Failed to open " << argv[1] << ", program stopped" << endl;
 
 	delete[] buffer;
 	return 0;
