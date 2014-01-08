@@ -3,7 +3,7 @@
 CC = c++
 CFLAGS = -Wall
 
-OBJECTS = guitarfx.o audiofx.o amplifier.o tremelo.o
+OBJECTS = guitarfx.o audiofx.o amplifier.o tremelo.o bitcrusher.o
 
 all: guitarfx
 

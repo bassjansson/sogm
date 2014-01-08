@@ -4,19 +4,24 @@
 #include "audiofx.h"
 #include "amplifier.h"
 #include "tremelo.h"
+#include "bitcrusher.h"
 
 
 void manual() {
 	clog <<
 "No valid input, usage:\n\n\
-    guitarfx [effect] [inputfile] [outputfile] -[param] [value]\n\n\n\
+\tguitarfx [effect] [inputfile] [outputfile] -[parameter] [value]\n\n\n\
 Effects with their parameters:\n\n\
-    a [amplifier]\n\
-        -g [gain]       Set gain of the amplifier (0 to 1)\n\n\
-    t [tremelo]\n\
-        -d [depth]      Set depth of the tremelo (0 to 1)\n\
-        -f [frequency]  Set frequency of the oscillator (Hertz)\n\
-        -p [phase]      Set phase of the oscillator (0 to 1)\n\n";
+\ta(mplifier)\n\
+\t\t-g(ain)       [0 to 1]    Set gain of the amplifier\n\n\
+\tt(remelo)\n\
+\t\t-d(epth)      [0 to 1]    Set depth of the tremelo\n\
+\t\t-f(requency)  [Hertz]     Set frequency of the oscillator\n\
+\t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n\
+\tb(itcrusher)\n\
+\t\t-b(itdepth)   [1 to 15]   Set bitdepth of the bitcrusher\n\
+\t\t-r(ounding)   [0, 1, 2]   Set rounding of the bitcrusher\n\
+\t\t                          0 = ceiling, 1 = round, 2 = floor\n\n";
 }
 
 
@@ -42,6 +47,8 @@ int main(int argc, char * argv[]) {
                   arg++; break;
         case 't': effect = new Tremelo(1024);               
                   arg++; break;
+		case 'b': effect = new Bitcrusher(1024);
+				  arg++; break;
     }
 
 
