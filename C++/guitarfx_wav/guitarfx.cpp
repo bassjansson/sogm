@@ -9,8 +9,10 @@
 
 void manual() {
 	clog <<
-"No valid input, usage:\n\n\
-\tguitarfx [effect] [inputfile] [outputfile] -[parameter] [value]\n\n\n\
+"\n(note: momentary only compatible with 16 bit 48 kHz wav files (mono and stereo))\n\n\
+No valid input, usage and example:\n\n\
+\tguitarfx [effect] [inputfile] [outputfile] -[parameter] [value]\n\n\
+\tguitarfx tremelo el_gtr.wav el_gtr_trem.wav -d 0.8 -f 10\n\n\n\
 Effects with their parameters:\n\n\
 \ta(mplifier)\n\
 \t\t-g(ain)       [0 to 1]    Set gain of the amplifier\n\n\

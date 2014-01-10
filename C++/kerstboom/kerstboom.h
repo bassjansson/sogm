@@ -1,3 +1,0 @@
-
-#define HOOGTE 10
-

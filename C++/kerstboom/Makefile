@@ -4,7 +4,7 @@ CFLAGS = -Wall
 
 all: kerstboom
 
-kerstboom: kerstboom.o kerstboom.h
+kerstboom: kerstboom.o
 	$(CC) -o $@ kerstboom.o
 
 clean:

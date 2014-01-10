@@ -1,7 +1,6 @@
 // Dit is mijn kerstboom programma
 
 #include <iostream>
-#include "kerstboom.h"
 
 using namespace std;
 
@@ -34,7 +33,7 @@ int main() {
 	cin >> hoeveel;
 	cout << "Hoe groot moeten de kerstbomen zijn? ";
 	cin >> grootte;
-	cout << "Hoe groot moet de randomness van de ballen zijn? ";
+	cout << "Hoe groot moet de afwezigheid van de ballen zijn? ";
 	cin >> ballen;
 
 	for(int i = 0; i < hoeveel; i++) {
