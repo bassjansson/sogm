@@ -60,7 +60,7 @@ class Audio_IO
 public:
   // Constructors
   Audio_IO();
-  Audio_IO(int samplerate, int nrofchannels);
+  Audio_IO(int samplerate,int nrofchannels);
 
   // Destructor
   ~Audio_IO();
@@ -70,7 +70,7 @@ public:
   int set_input_device(int device);
   int set_output_device(int device);
   void set_mode(int mode);
-  // void set_latency(bool latency); // 0: low   1: high
+  //void set_latency(bool latency); // 0: low   1: high
   void set_samplerate(int samplerate);
   void set_nrofchannels(int nrofchannels);
   void set_framesperbuffer(int framesperbuffer);
@@ -86,12 +86,6 @@ public:
 
   void finalise();
 
-protected:
-  int samplerate;
-  static int nrofchannels;
-  int framesperbuffer;
-  int mode;
-
 private:
   PaStreamParameters outputParameters;
   PaStreamParameters inputParameters;
@@ -99,8 +93,13 @@ private:
   PaError err;
   int input_device,output_device;
   int nrofdevices;
+  int samplerate;
+  static int nrofchannels;
+  int framesperbuffer;
 
   void leave(); // needs to be replaced by proper exception mechanism
+
+  int mode;
 
 }; // Audio_IO{}
 

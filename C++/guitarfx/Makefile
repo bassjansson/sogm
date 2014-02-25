@@ -4,7 +4,7 @@ CC = c++
 CFLAGS  = -Wall
 LDFLAGS = -lportaudio
 
-OBJECTS = guitarfx.o audio_io.o audiofx.o amplifier.o tremelo.o bitcrusher.o
+OBJECTS = guitarfx.o audio_io.o audiofx.o amplifier.o tremelo.o bitcrusher.o chorus.o
 
 all: guitarfx
 
@@ -20,4 +20,5 @@ clean:
 
 touch:
 	touch ./*.cpp
+	touch ./*.h
 

@@ -1,28 +1,30 @@
 // tremelo.cpp
 
-#include <cmath>
 #include "tremelo.h"
+#include <cmath>
 
-Tremelo::Tremelo(int buffer_size) : AudioFX(buffer_size)
+//==================================================================
+Tremelo::Tremelo()
 {
-	depth = 1;
-	freq  = 8;
-	phase = 0;
+	depth = 1.0f;
+	freq  = 8.0f;
+	phase = 0.0f;
 }
 
-
-void Tremelo::processSamples(int frame_size, int channels)
+//==================================================================
+void Tremelo::processSamples(BufferInfo* bufferToChange)
 {
-    for(int s = 0; s < frame_size; s++)
+	for(int c = 0; c < bufferToChange->numOfChannels; c++)
 	{
-		for(int c = 0; c < channels; c++)
+		for(int s = 0; s < bufferToChange->bufferSize; s++)
 		{
-			int place = getSamplePlace(s, c);
-            buffer[place] *= (sin((double)s / samplerate * freq * 2*M_PI + phase) * depth/2 + 1 - depth/2);
-        }
-    }
+			bufferToChange->buffer[c][s] *=
+				( sin((double)s / bufferToChange->sampleRate * freq * 2*M_PI + phase)
+				  * depth/2 + 1 - depth/2 );
+		}
+	}
 
-    phase += (double)frame_size / samplerate * freq * 2*M_PI;
+	phase += (double)bufferToChange->bufferSize / bufferToChange->sampleRate * freq * 2*M_PI;
 }
 
 int Tremelo::paramSwitch(char param, float value)

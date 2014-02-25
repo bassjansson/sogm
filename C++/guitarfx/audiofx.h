@@ -3,29 +3,36 @@
 #ifndef _AUDIOFX_H_
 #define _AUDIOFX_H_
 
-#include "audio_io.h"
-
-using namespace std;
-
-class AudioFX : public Audio_IO
+struct BufferInfo
 {
-	public:
-		AudioFX(int buffer_size);
-		~AudioFX();
+	int sampleRate;
+	int bufferSize;
+	int numOfChannels;
+	float** buffer;
+};
 
-		void setAudioSettings(int samplerate, int frame_size, int channels);
-		void startAudio();
-		void stopAudio();
-		void process();
-		int  getSamplePlace(int sample, int channel);
+class AudioFX
+{
+public:
+	//==================================================================
+	AudioFX();
+	~AudioFX();
 
-		virtual void processSamples(int frame_size, int channels);
-        virtual int  paramSwitch(char param, float value);
+	//==================================================================
+	void initialise(int sampleRate, int bufferSize, int numOfChannels);
+	void process(float* bufferToProcess);
+	void process();
+	float* getBuffer();
+	BufferInfo* getBufferInfo();
 
-	protected:
-		long   buffer_place;
-		int    buffer_size;
-		float* buffer;
+	//==================================================================
+	virtual void processSamples(BufferInfo* bufferToChange)=0;
+	virtual int  paramSwitch(char param, float value)=0;
+
+private:
+	//==================================================================
+	BufferInfo buffer;
+	float* ioBuffer;
 };
 
 #endif // _AUDIOFX_H_

@@ -2,75 +2,86 @@
 
 #include "audiofx.h"
 
-AudioFX::AudioFX(int buffer_size)
+//==================================================================
+AudioFX::AudioFX()
 {
-	setMode(AUDIO_IO_READWRITE);
+	// Default settings
+	buffer.sampleRate	 = 48000;
+	buffer.bufferSize	 = 256;
+	buffer.numOfChannels = 1;
 
-	this->buffer_place = 0;
-	this->buffer_size = buffer_size;
-	this->buffer = new float[buffer_size];
+	ioBuffer = new float[buffer.bufferSize * buffer.numOfChannels];
+
+	buffer.buffer = new float*[buffer.numOfChannels];
+	for(int c = 0; c < buffer.numOfChannels; c++)
+		buffer.buffer[c] = ioBuffer + long(buffer.bufferSize * c);
 }
 
 AudioFX::~AudioFX()
 {
-	buffer = nullptr;
+	delete buffer.buffer;
+	delete ioBuffer;
 }
 
-
-void AudioFX::setAudioSettings(int samplerate, int frame_size, int channels)
+//==================================================================
+void AudioFX::initialise(int sampleRate, int bufferSize, int numOfChannels)
 {
-	set_samplerate(samplerate);
-	set_framesperbuffer(frame_size);
-	set_nrofchannels(channels);
+	buffer.sampleRate	 = sampleRate;
+	buffer.bufferSize	 = bufferSize;
+	buffer.numOfChannels = numOfChannels;
+
+	ioBuffer = new float[buffer.bufferSize * buffer.numOfChannels];
+
+	buffer.buffer = new float*[buffer.numOfChannels];
+	for(int c = 0; c < buffer.numOfChannels; c++)
+		buffer.buffer[c] = ioBuffer + long(buffer.bufferSize * c);
 }
 
-void AudioFX::startAudio()
+void AudioFX::process(float* bufferToProcess)
 {
-	initialise();
-	list_devices();
-	int device;
+	// Remap buffer
+	ioBuffer = bufferToProcess;
 
-	cout << "\nGive input device number: ";
-	cin >> device;
-	set_input_device(device);
+	for(int c = 0; c < buffer.numOfChannels; c++)
+		buffer.buffer[c] = ioBuffer + long(buffer.bufferSize * c);
 
-	cout << "\nGive output device number: ";
-	cin >> device;
-	set_output_device(device);
+	// Process samples
+	processSamples(&buffer);
 
-	start_server();
-}
-
-void AudioFX::stopAudio()
-{
-	finalise();
-}
-
-void AudioFX::process()
-{
-	read(buffer + buffer_place);
-	processSamples(framesperbuffer, nrofchannels);
-	write(buffer + buffer_place);
-	buffer_place = (buffer_place + framesperbuffer * nrofchannels) % buffer_size;
-}
-
-int AudioFX::getSamplePlace(int sample, int channel)
-{
-	return (sample * nrofchannels + channel + buffer_size + buffer_place) % buffer_size;
-}
-
-
-void AudioFX::processSamples(int frame_size, int channels)
-{
-	for(int s = 0; s < frame_size; s++) {
-		for(int c = 0; c < channels; c++) {
-			// Audio Processing Goes Here
+	// Clip processed samples
+	for(int c = 0; c < buffer.numOfChannels; c++)
+	{
+		for(int s = 0; s < buffer.bufferSize; s++)
+		{
+			if      (buffer.buffer[c][s] >  1.0f) buffer.buffer[c][s] =  1.0f;
+			else if (buffer.buffer[c][s] < -1.0f) buffer.buffer[c][s] = -1.0f;
 		}
 	}
 }
 
-int AudioFX::paramSwitch(char param, float value)
+void AudioFX::process()
 {
-	return 0;
+	// Process samples
+	processSamples(&buffer);
+
+	// Clip processed samples
+	for(int c = 0; c < buffer.numOfChannels; c++)
+	{
+		for(int s = 0; s < buffer.bufferSize; s++)
+		{
+			if      (buffer.buffer[c][s] >  1.0f) buffer.buffer[c][s] =  1.0f;
+			else if (buffer.buffer[c][s] < -1.0f) buffer.buffer[c][s] = -1.0f;
+		}
+	}
+}
+
+float* AudioFX::getBuffer()
+{
+	return ioBuffer;
+}
+
+BufferInfo* AudioFX::getBufferInfo()
+{
+	return &buffer;
 }
 

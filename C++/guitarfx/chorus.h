@@ -1,24 +1,31 @@
-// amplifier.h
+// chorus.h
 
-#ifndef _AMPLIFIER_H_
-#define _AMPLIFIER_H_
+#ifndef _CHORUS_H_
+#define _CHORUS_H_
 
 #include "audiofx.h"
 
-class Amplifier : public AudioFX
+class Chorus : public AudioFX
 {
 public:
 	//==================================================================
-	Amplifier();
-
+	Chorus();
+	~Chorus();
+	
 	//==================================================================
-    void processSamples(BufferInfo* bufferToChange);
+	void processSamples(BufferInfo* bufferToChange);
 	int  paramSwitch(char param, float value);
 
 private:
 	//==================================================================
-	float gain;
+	float** history;
+	int historySize;
+	int historyPlace;
+
+	float depth;
+	float freq;
+	float phase;
 };
 
-#endif // _AMPLIFIER_H_
+#endif // _CHORUS_H_
 

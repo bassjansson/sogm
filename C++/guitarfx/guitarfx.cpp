@@ -1,14 +1,18 @@
 // guitarfx.cpp
 
 #include <iostream>
+#include <cstdlib>
+
+#include "audio_io.h"
 #include "audiofx.h"
 
 #include "amplifier.h"
 #include "tremelo.h"
 #include "bitcrusher.h"
+#include "chorus.h"
 
 
-void manual()
+int manual()
 {
 	clog <<
 "No valid input, usage and example:\n\n\
@@ -24,78 +28,123 @@ Effects with their parameters:\n\n\
 \tb(itcrusher)\n\
 \t\t-b(itdepth)   [1 to 15]   Set bitdepth of the bitcrusher\n\
 \t\t-r(ounding)   [0, 1, 2]   Set rounding of the bitcrusher\n\
-\t\t                          0 = ceiling, 1 = round, 2 = floor\n\n";
+\t\t                          0 = ceiling, 1 = round, 2 = floor\n\n\
+\tc(horus)\n\
+\t\t-d(epth)      [Seconds]   Set depth of the chorus\n\
+\t\t-f(requency)  [Hertz]     Set frequency of the oscillator\n\
+\t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n";
+
+	return 1;
 }
 
 
-#define SAMPLERATE   48000
-#define FRAME_SIZE   512
-#define HISTORY_SIZE 3
-#define CHANNELS     2
+#define SAMPLERATE		   48000
+#define BUFFER_SIZE		   256
+#define NUM_OF_CHANNELS    1
+#define MAX_NUM_OF_EFFECTS 5
 
 
 int main(int argc, char * argv[])
 {
-
 	// If less then 1 argument is given
     // show manual and quit
-	if(argc < 2)
-	{
-		manual(); return 0;
-	}
-    
+	if(argc < 2) return manual();
 
-	// Create an effect,
-	// Create a buffer with buffer_size
+
+	// Create an audio effect array,
+	// set current effect to zero
     // and set current argument to one
-	AudioFX * effect;
-    int arg = 1;
+	AudioFX** effect = new AudioFX*[MAX_NUM_OF_EFFECTS];
+	int afx = 0;
+    int arg = 1;    
 
 
-    // Switch effect by first argument
-	int buffer_size = FRAME_SIZE * CHANNELS * HISTORY_SIZE;
-    switch(argv[arg][0])
-	{
-        default : manual(); return 0;
-		case 'a': effect = new Amplifier(buffer_size);
-                  arg++; break;
-        case 't': effect = new Tremelo(buffer_size);               
-                  arg++; break;
-		case 'b': effect = new Bitcrusher(buffer_size);
-				  arg++; break;
-    }
-
-
-	// Process remaining arguments
-    // these are the parameters of the effect
+	// Process the given arguments
 	while(arg < argc)
 	{
-		if(argv[arg][0] == '-') {
-			int result = effect->paramSwitch(argv[arg][1], atof(argv[arg+1]));
-			if(result > 0) {
-                arg += result;
-            }
-			else {
-                manual(); return 0;
-            }
+		if(argv[arg][0] == '-')
+		{
+			if(effect[afx - 1] != nullptr)
+			{
+				int result = effect[afx - 1]->paramSwitch(argv[arg][1], atof(argv[arg+1]));
+
+				if(result > 0)
+				{
+        			arg += result;
+            	}
+				else return manual();
+			}
+			else return manual();
 		}
 		else {
-            manual(); return 0;
+			if(afx < MAX_NUM_OF_EFFECTS)
+			{
+	            switch(argv[arg][0])
+				{
+					default : return manual();
+	
+					case 'a': effect[afx] = new Amplifier();
+							  arg++; afx++; break;
+	
+					case 't': effect[afx] = new Tremelo();               
+							  arg++; afx++; break;
+
+					case 'b': effect[afx] = new Bitcrusher();
+							  arg++; afx++; break;
+
+					case 'c': effect[afx] = new Chorus();
+							  arg++; afx++; break;
+				}
+			}
+			else return manual();
         }
 	}
 
 
-	// Set audio settings
-	effect->setAudioSettings(SAMPLERATE, FRAME_SIZE, CHANNELS);
+	// Initialise audio I/O
+	Audio_IO audioIO;
+
+	audioIO.set_mode(AUDIO_IO_READWRITE);
+	audioIO.set_samplerate(SAMPLERATE);
+	audioIO.set_framesperbuffer(BUFFER_SIZE);
+	audioIO.set_nrofchannels(NUM_OF_CHANNELS);
+
+	audioIO.initialise();
+	audioIO.list_devices();
+	int device;
+
+	cout << "\nGive input device number: ";
+	cin >> device;
+	audioIO.set_input_device(device);
+
+	cout << "Give output device number: ";
+	cin >> device;
+	audioIO.set_output_device(device);
+
+	audioIO.start_server();
 
 
-	// Start, read, process, write and stop audio
-	effect->startAudio();
-	while(true) effect->process();
-	effect->stopAudio();
+	// Initialise the effects
+	for(int i = 0; i < afx; i++)
+		effect[i]->initialise(SAMPLERATE, BUFFER_SIZE, NUM_OF_CHANNELS);
 
 
-	// Program finished
+	// Read, process and write audio
+	while(true)
+	{
+		audioIO.read(effect[0]->getBuffer());
+
+		effect[0]->process();
+		for(int i = 1; i < afx; i++)
+			effect[i]->process(effect[i - 1]->getBuffer());
+
+		audioIO.write(effect[afx - 1]->getBuffer());
+	}
+
+
+	// Finalise audio I/O
+	// and exit program
+	audioIO.finalise();
 	return 0;
 }
 

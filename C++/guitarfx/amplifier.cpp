@@ -2,22 +2,22 @@
 
 #include "amplifier.h"
 
-Amplifier::Amplifier(int buffer_size) : AudioFX(buffer_size)
+//==================================================================
+Amplifier::Amplifier()
 {
-	gain = 1;
+	gain = 1.0f;
 }
 
-
-void Amplifier::processSamples(int frame_size, int channels)
+//==================================================================
+void Amplifier::processSamples(BufferInfo* bufferToChange)
 {
-   	for(int s = 0; s < frame_size; s++)
+	for(int c = 0; c < bufferToChange->numOfChannels; c++)
 	{
-		for(int c = 0; c < channels; c++)
+		for(int s = 0; s < bufferToChange->bufferSize; s++)
 		{
-			int place = getSamplePlace(s, c);
-			buffer[place] *= gain;
+			bufferToChange->buffer[c][s] *= gain;
 		}
-	} 
+	}
 }
 
 int Amplifier::paramSwitch(char param, float value)
