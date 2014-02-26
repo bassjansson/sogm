@@ -233,7 +233,7 @@ void Audio_IO::read(float *buf)
   {
     // blocking read
     err = Pa_ReadStream(stream,buf,framesperbuffer);
-    if(err != paNoError) leave();
+    //if(err != paNoError) leave();
   }
 }
 
