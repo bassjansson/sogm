@@ -10,6 +10,7 @@
 #include "tremelo.h"
 #include "bitcrusher.h"
 #include "chorus.h"
+#include "foldback.h"
 
 
 int manual()
@@ -32,7 +33,9 @@ Effects with their parameters:\n\n\
 \tc(horus)\n\
 \t\t-d(epth)      [Seconds]   Set depth of the chorus\n\
 \t\t-f(requency)  [Hertz]     Set frequency of the oscillator\n\
-\t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n";
+\t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n\
+\tf(oldback)\n\
+\t\t-d(rive)      [0 to ∞]    Set drive of the foldback\n\n";
 
 	return 1;
 }
@@ -41,7 +44,7 @@ Effects with their parameters:\n\n\
 #define SAMPLERATE		   48000
 #define BUFFER_SIZE		   256
 #define NUM_OF_CHANNELS    1
-#define MAX_NUM_OF_EFFECTS 5
+#define MAX_NUM_OF_EFFECTS 10
 
 
 int main(int argc, char * argv[])
@@ -93,6 +96,9 @@ int main(int argc, char * argv[])
 							  arg++; afx++; break;
 
 					case 'c': effect[afx] = new Chorus();
+							  arg++; afx++; break;
+
+					case 'f': effect[afx] = new Foldback();
 							  arg++; afx++; break;
 				}
 			}
