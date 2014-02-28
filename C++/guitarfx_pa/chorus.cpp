@@ -31,24 +31,24 @@ void Chorus::processSamples(BufferInfo* bufferToChange)
 {
 	for(int c = 0; c < bufferToChange->numOfChannels; c++)
 	{
-		// Writing to history
-		for(int s = 0; s < bufferToChange->bufferSize; s++)
-		{
-			int sample = (s + historyPlace) % historySize;
-			history[c][sample] = bufferToChange->buffer[c][s];
-		}
-
 		// Writing buffer
 		for(int s = 0; s < bufferToChange->bufferSize; s++)
 		{
+			// Writing to history
+			int sample = (s + historyPlace) % historySize;
+			history[c][sample] = bufferToChange->buffer[c][s];
+
+			// Calculating delay
 			int delay  = ( sin((double)s / bufferToChange->sampleRate * freq * 2*M_PI + phase)
 						   / 2.0 + 0.5 ) * depth * bufferToChange->sampleRate;
 
-			int sample = (s + historyPlace + historySize - delay) % historySize;
+			// Writing sample
+			sample = (s + historyPlace + historySize - delay) % historySize;
 			bufferToChange->buffer[c][s] += history[c][sample];
 		}
 	}
 
+	// Updating history and phase
 	historyPlace = (bufferToChange->bufferSize + historyPlace) % historySize;
 	phase += (double)bufferToChange->bufferSize / bufferToChange->sampleRate * freq * 2*M_PI;
 }

@@ -11,6 +11,7 @@
 #include "bitcrusher.h"
 #include "chorus.h"
 #include "foldback.h"
+#include "dynamicinverter.h"
 
 
 int manual()
@@ -35,14 +36,16 @@ Effects with their parameters:\n\n\
 \t\t-f(requency)  [Hertz]     Set frequency of the oscillator\n\
 \t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n\
 \tf(oldback)\n\
-\t\t-d(rive)      [0 to ∞]    Set drive of the foldback\n\n";
+\t\t-d(rive)      [0 to ∞]    Set drive of the foldback\n\n\
+\td(ynamic inverter)\n\
+\t\t-i(nterval)   [Seconds]   Set interval of the RMS\n\n";
 
 	return 1;
 }
 
 
 #define SAMPLERATE		   48000
-#define BUFFER_SIZE		   256
+#define BUFFER_SIZE		   64
 #define NUM_OF_CHANNELS    1
 #define MAX_NUM_OF_EFFECTS 10
 
@@ -99,6 +102,9 @@ int main(int argc, char * argv[])
 							  arg++; afx++; break;
 
 					case 'f': effect[afx] = new Foldback();
+							  arg++; afx++; break;
+
+					case 'd': effect[afx] = new DynamicInverter();
 							  arg++; afx++; break;
 				}
 			}
