@@ -6,7 +6,7 @@
 //==================================================================
 Bitcrusher::Bitcrusher()
 {
-	bitdepth = 4;
+	bitdepth = 2;
 	rounding = 0;
 }
 

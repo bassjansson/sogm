@@ -16,7 +16,7 @@ Chorus::Chorus()
 	for(int c = 0; c < numOfChannels; c++)
 		history[c] = new float[historySize];
 
-	depth = 0.01f;
+	depth = 0.002f;
 	freq  = 2.0f;
 	phase = 0.0f;
 }

@@ -53,7 +53,7 @@ void DynamicInverter::processSamples(BufferInfo* bufferToChange)
 
 			// Writing sample
 			float rms = oldRMS[c] + (newRMS[c] - oldRMS[c]) * s / bufferToChange->bufferSize;
-			bufferToChange->buffer[c][s] *= (1.f - rms);
+			bufferToChange->buffer[c][s] *= (1.f / (sqrtf(rms) + 0.000001) - 1.f);
 		}
 
 		// Updating oldRMS
