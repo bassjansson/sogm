@@ -4,7 +4,7 @@ CC = c++
 CFLAGS  = -Wall
 LDFLAGS = -lportaudio
 
-OBJECTS = guitarfx.o audio_io.o audiofx.o amplifier.o tremelo.o bitcrusher.o chorus.o foldback.o dynamicinverter.o
+OBJECTS = guitarfx.o audio_io.o audiofx.o amplifier.o tremelo.o bitcrusher.o chorus.o overdrive.o dynamiccompressor.o
 
 all: guitarfx
 

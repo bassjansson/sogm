@@ -1,16 +1,16 @@
-// dynamicinverter.h
+// dynamiccompressor.h
 
-#ifndef _DYNAMICINVERTER_H_
-#define _DYNAMICINVERTER_H_
+#ifndef _DYNAMICCOMPRESSOR_H_
+#define _DYNAMICCOMPRESSOR_H_
 
 #include "audiofx.h"
 
-class DynamicInverter : public AudioFX
+class DynamicCompressor : public AudioFX
 {
 public:
 	//==================================================================
-	DynamicInverter();
-	~DynamicInverter();
+	DynamicCompressor();
+	~DynamicCompressor();
 	
 	//==================================================================
 	void processSamples(BufferInfo* bufferToChange);
@@ -23,9 +23,10 @@ private:
 	int historyPlace;
 
 	float interval;
+	float ratio;
 	float* newRMS;
 	float* oldRMS;
 };
 
-#endif // _DYNAMICINVERTER_H_
+#endif // _DYNAMICCOMPRESSOR_H_
 

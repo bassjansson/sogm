@@ -1,10 +1,10 @@
-// dynamicinverter.cpp
+// dynamiccompressor.cpp
 
-#include "dynamicinverter.h"
+#include "dynamiccompressor.h"
 #include <cmath>
 
 //==================================================================
-DynamicInverter::DynamicInverter()
+DynamicCompressor::DynamicCompressor()
 {
 	int sampleRate = 48000;
 	int numOfChannels = 2;
@@ -17,11 +17,12 @@ DynamicInverter::DynamicInverter()
 		history[c] = new float[historySize];
 
 	interval = 0.4;
+	ratio = 0.25;
 	newRMS = new float[numOfChannels];
 	oldRMS = new float[numOfChannels];
 }
 
-DynamicInverter::~DynamicInverter()
+DynamicCompressor::~DynamicCompressor()
 {
 	delete history;
 	delete newRMS;
@@ -29,7 +30,7 @@ DynamicInverter::~DynamicInverter()
 }
 
 //==================================================================
-void DynamicInverter::processSamples(BufferInfo* bufferToChange)
+void DynamicCompressor::processSamples(BufferInfo* bufferToChange)
 {
 	int intervalInSampels = int(interval * bufferToChange->sampleRate);
 
@@ -53,7 +54,7 @@ void DynamicInverter::processSamples(BufferInfo* bufferToChange)
 
 			// Writing sample
 			float rms = oldRMS[c] + (newRMS[c] - oldRMS[c]) * s / bufferToChange->bufferSize;
-			bufferToChange->buffer[c][s] *= (1.f / (sqrtf(rms) + 0.000001) - 1.f);
+			bufferToChange->buffer[c][s] *= powf(fabsf(rms - 1.f), ratio);
 		}
 
 		// Updating oldRMS
@@ -64,12 +65,13 @@ void DynamicInverter::processSamples(BufferInfo* bufferToChange)
 	historyPlace = (bufferToChange->bufferSize + historyPlace) % historySize;
 }
 
-int DynamicInverter::paramSwitch(char param, float value)
+int DynamicCompressor::paramSwitch(char param, float value)
 {
 	switch(param)
 	{
 		default : return 0;
 		case 'i': interval = value; return 2;
+		case 'r': ratio = value; return 2;
 	}
 }
 

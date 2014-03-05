@@ -1,29 +1,28 @@
-// foldback.cpp
+// overdrive.cpp
 
-#include "foldback.h"
+#include "overdrive.h"
 #include <cmath>
 
 //==================================================================
-Foldback::Foldback()
+Overdrive::Overdrive()
 {
-	drive = 4.f;
+	drive = 0.25f;
 }
 
 //==================================================================
-void Foldback::processSamples(BufferInfo* bufferToChange)
+void Overdrive::processSamples(BufferInfo* bufferToChange)
 {
 	for(int c = 0; c < bufferToChange->numOfChannels; c++)
 	{
 		for(int s = 0; s < bufferToChange->bufferSize; s++)
 		{
-			float sample = bufferToChange->buffer[c][s];
-
-			bufferToChange->buffer[c][s] = fmod(fabsf(sample) * drive, 1.f) * sample/fabsf(sample);	
+			if(drive < 0.0001) drive = 0.0001;
+			bufferToChange->buffer[c][s] = powf(bufferToChange->buffer[c][s], drive);
 		}
 	}
 }		
 
-int Foldback::paramSwitch(char param, float value)
+int Overdrive::paramSwitch(char param, float value)
 {
 	switch(param)
 	{

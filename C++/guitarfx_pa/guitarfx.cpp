@@ -10,8 +10,8 @@
 #include "tremelo.h"
 #include "bitcrusher.h"
 #include "chorus.h"
-#include "foldback.h"
-#include "dynamicinverter.h"
+#include "overdrive.h"
+#include "dynamiccompressor.h"
 
 
 int manual()
@@ -19,7 +19,7 @@ int manual()
 	clog <<
 "No valid input, usage and example:\n\n\
 \tguitarfx [effect] -[parameter] [value]\n\n\
-\tguitarfx tremelo -d 0.8 -f 10\n\n\n\
+\tguitarfx tremelo -d 0.8 -f 10 chorus -f 3 amp -g 0.5\n\n\n\
 Effects with their parameters:\n\n\
 \ta(mplifier)\n\
 \t\t-g(ain)       [0 to 1]    Set gain of the amplifier\n\n\
@@ -35,17 +35,17 @@ Effects with their parameters:\n\n\
 \t\t-d(epth)      [Seconds]   Set depth of the chorus\n\
 \t\t-f(requency)  [Hertz]     Set frequency of the oscillator\n\
 \t\t-p(hase)      [0 to 1]    Set phase of the oscillator\n\n\
-\tf(oldback)\n\
-\t\t-d(rive)      [0 to ∞]    Set drive of the foldback\n\n\
-\td(ynamic inverter)\n\
-\t\t-i(nterval)   [Seconds]   Set interval of the RMS\n\n";
+\to(verdrive)\n\
+\t\t-d(rive)      [0 to ∞]    Set drive of the overdrive\n\n\
+\td(ynamic compressor)\n\
+\t\t-i(nterval)   [Seconds]   Set interval of the RMS\n\n\
+\t\t-r(atio)      [0 to ∞]    Set ratio of the Compressor\n\n";
 
 	return 1;
 }
 
 
 #define SAMPLERATE		   48000
-#define BUFFER_SIZE		   64
 #define NUM_OF_CHANNELS    1
 #define MAX_NUM_OF_EFFECTS 10
 
@@ -101,16 +101,22 @@ int main(int argc, char * argv[])
 					case 'c': effect[afx] = new Chorus();
 							  arg++; afx++; break;
 
-					case 'f': effect[afx] = new Foldback();
+					case 'f': effect[afx] = new Overdrive();
 							  arg++; afx++; break;
 
-					case 'd': effect[afx] = new DynamicInverter();
+					case 'd': effect[afx] = new DynamicCompressor();
 							  arg++; afx++; break;
 				}
 			}
 			else return manual();
         }
 	}
+
+
+	// Get buffersize
+	int BUFFER_SIZE;
+	cout << "\nGive buffersize: ";
+	cin >> BUFFER_SIZE;
 
 
 	// Initialise audio I/O

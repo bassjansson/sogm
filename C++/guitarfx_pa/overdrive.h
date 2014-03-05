@@ -1,15 +1,15 @@
-// foldback.h
+// overdrive.h
 
-#ifndef _FOLDBACK_H_
-#define _FOLDBACK_H_
+#ifndef _OVERDRIVE_H_
+#define _OVERDRIVE_H_
 
 #include "audiofx.h"
 
-class Foldback : public AudioFX
+class Overdrive : public AudioFX
 {
 public:
 	//==================================================================
-	Foldback();
+	Overdrive();
 
 	//==================================================================
 	void processSamples(BufferInfo* bufferToChange);
@@ -20,5 +20,5 @@ private:
 	float drive;
 };
 
-#endif // _FOLDBACK_H_
+#endif // _OVERDRIVE_H_
 
