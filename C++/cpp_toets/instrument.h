@@ -2,10 +2,6 @@
 #ifndef _INSTRUMENT_H_
 #define _INSTRUMENT_H_
 
-#include <string>
-
-using namespace std;
-
 
 struct Note
 {
