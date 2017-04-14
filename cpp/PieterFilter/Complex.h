@@ -24,3 +24,4 @@ Complex carToPol (Complex car);
 Complex polToCar (Complex pol);
 
 Complex complexPow (Complex input, int power);
+float   complexAbs (Complex input);

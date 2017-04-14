@@ -239,16 +239,19 @@ float* Filter::getFrequencyResponse (int responseSize)
     return response;
 }
 
+//==================================================================
 // signal = x, response = X
-void fourierTransform (ComplexVector& signal, ComplexVector& response)
+void Filter::fourierTransform (ComplexVector& signal, ComplexVector& response)
 {
+    float N = response.size();
+
     for (int k = 0; k < response.size(); ++k)
     {
         response[k] = newComplex(0, 0);
 
         for (int n = 0; n < signal.size(); ++n)
         {
-            float alpha = (float)k / response.size() * M_PI * -n;
+            float alpha = 2*M_PI * k / N * -n;
 
             Complex Z = newComplex(cosf(alpha), sinf(alpha));
 
@@ -260,22 +263,24 @@ void fourierTransform (ComplexVector& signal, ComplexVector& response)
 }
 
 // response = X, signal = x
-void inverseFourierTransform (ComplexVector& response, ComplexVector& signal)
+void Filter::inverseFourierTransform (ComplexVector& response, ComplexVector& signal)
 {
+    float N = response.size();
+
     for (int n = 0; n < signal.size(); ++n)
     {
         signal[n] = newComplex(0, 0);
 
         for (int k = 0; k < response.size(); ++k)
         {
-            float alpha = (float)k / response.size() * M_PI * n;
+            float alpha = 2*M_PI * k / N * n;
 
             Complex Z = newComplex(cosf(alpha), sinf(alpha));
 
             signal[n] = signal[n] + (polToCar(response[k]) * Z);
         }
 
-        signal[n] = signal[n] / newComplex(response.size(), 0);
+        signal[n] = signal[n] / newComplex(N, 0);
     }
 }
 

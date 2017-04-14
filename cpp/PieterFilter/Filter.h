@@ -41,6 +41,10 @@ public:
     float* testFrequencyResponse (int binSize);
 	float*  getFrequencyResponse (int binSize);
 
+    //==================================================================
+    void        fourierTransform (ComplexVector& signal, ComplexVector& response);
+    void inverseFourierTransform (ComplexVector& response, ComplexVector& signal);
+
 	//==================================================================
 	float filter (float input);
 	void  filter (float* buffer, int size);

@@ -61,8 +61,8 @@ Complex carToPol (Complex car)
 {
 	Complex result;
 
-	result.real = sqrtf(car.real * car.real + car.imag * car.imag);
-	result.imag = atan2(car.real, car.imag);
+	result.real = complexAbs(car);
+	result.imag = atan2(car.imag, car.real);
 
     return result;
 }
@@ -94,4 +94,9 @@ Complex complexPow (Complex input, int power)
     }
 
     return result;
+}
+
+float complexAbs (Complex input)
+{
+    return sqrtf(input.real * input.real + input.imag * input.imag);
 }
