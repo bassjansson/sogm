@@ -7,32 +7,32 @@
 Filter::Filter(int sampleRate)
 {
     this->sampleRate = sampleRate;
-    
+
     zeros = new ComplexVector();
     poles = new ComplexVector();
-    
+
     zeroBuffer.position     = 0;
     zeroBuffer.size         = 1;
     zeroBuffer.buffer       = new float[zeroBuffer.size];
-    zeroBuffer.coefficients = getCoefficients(*zeros);
-    
+    zeroBuffer.coefficients = getCoefficients(1, *zeros);
+
     poleBuffer.position     = 0;
     poleBuffer.size         = 1;
     poleBuffer.buffer       = new float[poleBuffer.size];
-    poleBuffer.coefficients = getCoefficients(*poles);
+    poleBuffer.coefficients = getCoefficients(1, *poles);
 }
 
 Filter::~Filter()
 {
     this->zeros->clear();
     delete this->zeros;
-    
+
     this->poles->clear();
     delete this->poles;
-    
+
     delete[] zeroBuffer.buffer;
     delete[] zeroBuffer.coefficients;
-    
+
     delete[] poleBuffer.buffer;
     delete[] poleBuffer.coefficients;
 }
@@ -47,7 +47,7 @@ void Filter::addZero (float frequency, float resonance)
     else
     {
         float theta = frequency / sampleRate * 2*M_PI;
-        
+
         addZero(polToCar(newComplex(resonance,  theta)));
         addZero(polToCar(newComplex(resonance, -theta)));
     }
@@ -62,7 +62,7 @@ void Filter::addPole (float frequency, float resonance)
     else
     {
         float theta = frequency / sampleRate * 2*M_PI;
-        
+
         addPole(polToCar(newComplex(resonance,  theta)));
         addPole(polToCar(newComplex(resonance, -theta)));
     }
@@ -71,55 +71,55 @@ void Filter::addPole (float frequency, float resonance)
 void Filter::addZero (Complex coordinate)
 {
     zeros->push_back(coordinate);
-    
+
     delete[] zeroBuffer.buffer;
     delete[] zeroBuffer.coefficients;
-    
+
     zeroBuffer.position     = 0;
     zeroBuffer.size         = (int)zeros->size() + 1;
     zeroBuffer.buffer       = new float[zeroBuffer.size];
-    zeroBuffer.coefficients = getCoefficients(*zeros);
+    zeroBuffer.coefficients = getCoefficients(1, *zeros);
 }
 
 void Filter::addPole (Complex coordinate)
 {
     poles->push_back(coordinate);
-    
+
     delete[] poleBuffer.buffer;
     delete[] poleBuffer.coefficients;
-    
+
     poleBuffer.position     = 0;
     poleBuffer.size         = (int)poles->size() + 1;
     poleBuffer.buffer       = new float[poleBuffer.size];
-    poleBuffer.coefficients = getCoefficients(*poles);
+    poleBuffer.coefficients = getCoefficients(1, *poles);
 }
 
 void Filter::setCoordinates (ComplexVector& zeros, ComplexVector& poles)
 {
     this->zeros->clear();
     delete this->zeros;
-    
+
     this->poles->clear();
     delete this->poles;
-    
+
     this->zeros = &zeros;
     this->poles = &poles;
-    
+
     delete[] zeroBuffer.buffer;
     delete[] zeroBuffer.coefficients;
-    
+
     delete[] poleBuffer.buffer;
     delete[] poleBuffer.coefficients;
-    
+
     zeroBuffer.position     = 0;
     zeroBuffer.size         = (int)zeros.size() + 1;
     zeroBuffer.buffer       = new float[zeroBuffer.size];
-    zeroBuffer.coefficients = getCoefficients(zeros);
-    
+    zeroBuffer.coefficients = getCoefficients(1, zeros);
+
     poleBuffer.position     = 0;
     poleBuffer.size         = (int)poles.size() + 1;
     poleBuffer.buffer       = new float[poleBuffer.size];
-    poleBuffer.coefficients = getCoefficients(poles);
+    poleBuffer.coefficients = getCoefficients(1, poles);
 }
 
 //==================================================================
@@ -129,7 +129,7 @@ void Filter::setZeroCoefficients (float* coefficients, int size)
 
     delete[] zeroBuffer.buffer;
     delete[] zeroBuffer.coefficients;
-    
+
     zeroBuffer.position     = 0;
     zeroBuffer.size         = size;
     zeroBuffer.buffer       = new float[zeroBuffer.size];
@@ -139,10 +139,10 @@ void Filter::setZeroCoefficients (float* coefficients, int size)
 void Filter::setPoleCoefficients (float* coefficients, int size)
 {
     this->poles->clear();
-    
+
     delete[] poleBuffer.buffer;
     delete[] poleBuffer.coefficients;
-    
+
     poleBuffer.position     = 0;
     poleBuffer.size         = size;
     poleBuffer.buffer       = new float[poleBuffer.size];
@@ -171,33 +171,67 @@ int Filter::getPoleSize()
 }
 
 //==================================================================
-float* Filter::getFrequencyResponse (int windowSize)
+float* Filter::testFrequencyResponse (int binSize)
 {
-    int binSize = windowSize;
-    windowSize *= 2;
-    
+    int windowSize = binSize * 2;
+
     float* signal   = new float[windowSize];
     float* response = new float[binSize];
-    
+
     for (int bin = 0; bin < binSize; bin++)
     {
         for (int i = 0; i < windowSize; i++)
-            signal[i] = cosf((float)i / windowSize * 2*M_PI * bin);
-        
+            signal[i] = sqrtf(2) * cosf((float)i / windowSize * 2*M_PI * bin);
+
         filter(signal, windowSize);
-        
+
         float RMS = 0.0f;
-        
+
         for (int i = 0; i < windowSize; i++)
             RMS += signal[i] * signal[i];
-        
+
         RMS = sqrtf(RMS / windowSize);
-        
+
         response[bin] = 20.0f * log10f(RMS);
     }
-    
+
     delete[] signal;
-    
+
+    return response;
+}
+
+float* Filter::getFrequencyResponse (int binSize)
+{
+    float* response = new float[binSize];
+
+    for (int bin = 0; bin < binSize; ++bin)
+    {
+        float alpha = (float)bin / binSize * M_PI;
+
+        Complex Z = newComplex(cos(alpha), sin(alpha));
+
+        Complex Y = newComplex(0, 0);
+        Complex X = newComplex(0, 0);
+
+        for (int n = 0; n < zeroBuffer.size; ++n)
+        {
+            Complex coef = newComplex(zeroBuffer.coefficients[n], 0);
+            Y = Y + coef * complexPow(Z, -n);
+        }
+
+        for (int n = 0; n < poleBuffer.size; ++n)
+        {
+            Complex coef = newComplex(poleBuffer.coefficients[n], 0);
+            X = X + coef * complexPow(Z, -n);
+        }
+
+        Complex H = Y / X;
+
+        float magnitude = carToPol(H).real;
+
+        response[bin] = 20.0f * log10f(magnitude);
+    }
+
     return response;
 }
 
@@ -205,13 +239,13 @@ float* Filter::getFrequencyResponse (int windowSize)
 float Filter::filter (float input)
 {
     float output = input * zeroBuffer.coefficients[0];
-    
+
     int size;
     if (zeroBuffer.size > poleBuffer.size) size = zeroBuffer.size;
     else                                   size = poleBuffer.size;
-    
+
     zeroBuffer.buffer[zeroBuffer.position] = input;
-    
+
     for (int i = 1; i < size; i++)
     {
         if (i < zeroBuffer.size)
@@ -219,19 +253,19 @@ float Filter::filter (float input)
             int position = (zeroBuffer.position + zeroBuffer.size - i) % zeroBuffer.size;
             output += zeroBuffer.coefficients[i] * zeroBuffer.buffer[position];
         }
-        
+
         if (i < poleBuffer.size)
         {
             int position = (poleBuffer.position + poleBuffer.size - i) % poleBuffer.size;
             output -= poleBuffer.coefficients[i] * poleBuffer.buffer[position];
         }
     }
-    
+
     poleBuffer.buffer[poleBuffer.position] = output;
-    
+
     zeroBuffer.position = (zeroBuffer.position + 1) % zeroBuffer.size;
     poleBuffer.position = (poleBuffer.position + 1) % poleBuffer.size;
-    
+
     return output;
 }
 
@@ -242,23 +276,23 @@ void Filter::filter (float* buffer, int size)
 }
 
 //==================================================================
-Complex Filter::getCoefficient (Complex* coordinates, int size, int coefficient, int position)
+Complex Filter::getCoefficient (float gain, Complex* coordinates, int size, int coefficient, int position)
 {
-    if (coefficient <= 0)   return newComplex(1, 0);
-    if (coefficient > size) return newComplex(0, 0);
-	
+    if (coefficient <= 0)   return newComplex(gain, 0);
+    if (coefficient > size) return newComplex(0   , 0);
+
     return (coordinates[position] * newComplex(-1, 0)
-            * getCoefficient(coordinates, size - 1, coefficient - 1, position + 1)
-            + getCoefficient(coordinates, size - 1, coefficient    , position + 1));
+            * getCoefficient(gain, coordinates, size - 1, coefficient - 1, position + 1)
+            + getCoefficient(gain, coordinates, size - 1, coefficient    , position + 1));
 }
 
-float* Filter::getCoefficients (ComplexVector& coordinates)
+float* Filter::getCoefficients (float gain, ComplexVector& coordinates)
 {
     int coefficientsSize = (int)coordinates.size() + 1;
     float* coefficients  = new float[coefficientsSize];
-    
+
     for (int i = 0; i < coefficientsSize; i++)
-        coefficients[i] = getCoefficient(coordinates.data(), (int)coordinates.size(), i, 0).real;
-    
+        coefficients[i] = getCoefficient(gain, coordinates.data(), (int)coordinates.size(), i, 0).real;
+
     return coefficients;
 }

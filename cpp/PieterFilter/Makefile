@@ -14,8 +14,8 @@ PieterFilter: $(OBJECTS)
 	$(CC) -c $< $(CFLAGS)
 
 clean:
-	rm *.o
-	rm `find . -perm +111 -type f`
+	rm ./*.o
+	rm ./PieterFilter
 
 touch:
 	touch ./*.cpp

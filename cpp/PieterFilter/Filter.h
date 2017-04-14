@@ -26,7 +26,7 @@ public:
 	void addZero (Complex coordinate);
 	void addPole (Complex coordinate);
 	void setCoordinates (ComplexVector& zeros, ComplexVector& poles);
-	
+
 	//==================================================================
 	void setZeroCoefficients (float* coefficients, int size);
 	void setPoleCoefficients (float* coefficients, int size);
@@ -36,9 +36,10 @@ public:
 	float* getPoleCoefficients();
 	int    getZeroSize();
 	int    getPoleSize();
-	
+
 	//==================================================================
-	float* getFrequencyResponse (int windowSize);
+    float* testFrequencyResponse (int binSize);
+	float*  getFrequencyResponse (int binSize);
 
 	//==================================================================
 	float filter (float input);
@@ -46,13 +47,13 @@ public:
 
 protected:
 	//==================================================================
-	Complex getCoefficient  (Complex* coordinates, int size, int coefficient, int position);
-	float*  getCoefficients (ComplexVector& coordinates);
+	Complex getCoefficient  (float gain, Complex* coordinates, int size, int coefficient, int position);
+	float*  getCoefficients (float gain, ComplexVector& coordinates);
 
 private:
 	//==================================================================
     int sampleRate;
-    
+
 	ComplexVector* zeros;
 	ComplexVector* poles;
 
