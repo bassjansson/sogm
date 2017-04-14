@@ -200,39 +200,83 @@ float* Filter::testFrequencyResponse (int binSize)
     return response;
 }
 
-float* Filter::getFrequencyResponse (int binSize)
+float* Filter::getFrequencyResponse (int responseSize)
 {
-    float* response = new float[binSize];
+    float* response = new float[responseSize];
 
-    for (int bin = 0; bin < binSize; ++bin)
+    for (int k = 0; k < responseSize; ++k)
     {
-        float alpha = (float)bin / binSize * M_PI;
-
-        Complex Z = newComplex(cos(alpha), sin(alpha));
-
         Complex Y = newComplex(0, 0);
         Complex X = newComplex(0, 0);
 
         for (int n = 0; n < zeroBuffer.size; ++n)
         {
-            Complex coef = newComplex(zeroBuffer.coefficients[n], 0);
-            Y = Y + coef * complexPow(Z, -n);
+            float alpha = (float)k / responseSize * M_PI * -n;
+
+            Complex Z = newComplex(cosf(alpha), sinf(alpha));
+            Complex a = newComplex(zeroBuffer.coefficients[n], 0);
+
+            Y = Y + a * Z;
         }
 
         for (int n = 0; n < poleBuffer.size; ++n)
         {
-            Complex coef = newComplex(poleBuffer.coefficients[n], 0);
-            X = X + coef * complexPow(Z, -n);
+            float alpha = (float)k / responseSize * M_PI * -n;
+
+            Complex Z = newComplex(cosf(alpha), sinf(alpha));
+            Complex b = newComplex(poleBuffer.coefficients[n], 0);
+
+            X = X - b * Z;
         }
 
         Complex H = Y / X;
 
         float magnitude = carToPol(H).real;
 
-        response[bin] = 20.0f * log10f(magnitude);
+        response[k] = 20.0f * log10f(magnitude);
     }
 
     return response;
+}
+
+// signal = x, response = X
+void fourierTransform (ComplexVector& signal, ComplexVector& response)
+{
+    for (int k = 0; k < response.size(); ++k)
+    {
+        response[k] = newComplex(0, 0);
+
+        for (int n = 0; n < signal.size(); ++n)
+        {
+            float alpha = (float)k / response.size() * M_PI * -n;
+
+            Complex Z = newComplex(cosf(alpha), sinf(alpha));
+
+            response[k] = response[k] + (signal[n] * Z);
+        }
+
+        response[k] = carToPol(response[k]);
+    }
+}
+
+// response = X, signal = x
+void inverseFourierTransform (ComplexVector& response, ComplexVector& signal)
+{
+    for (int n = 0; n < signal.size(); ++n)
+    {
+        signal[n] = newComplex(0, 0);
+
+        for (int k = 0; k < response.size(); ++k)
+        {
+            float alpha = (float)k / response.size() * M_PI * n;
+
+            Complex Z = newComplex(cosf(alpha), sinf(alpha));
+
+            signal[n] = signal[n] + (polToCar(response[k]) * Z);
+        }
+
+        signal[n] = signal[n] / newComplex(response.size(), 0);
+    }
 }
 
 //==================================================================
